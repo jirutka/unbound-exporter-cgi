@@ -1,0 +1,50 @@
+= Prometheus Unbound exporter – CGI script
+
+This repository provides code for a simple Prometheus metrics exporter for the Unbound DNS resolver.
+This exporter connects to Unbounds control socket and sends the `stats_noreset` command, causing Unbound to return metrics as key-value pairs.
+The metrics exporter converts Unbound metric names to Prometheus metric names and labels by using a set of regular expressions and AWK.
+
+It does the same job as https://github.com/letsencrypt/unbound_exporter[unbound_exporter] by Let’s Encrypt, but using a very simple shell script, https://en.wikipedia.org/wiki/AWK[AWK] and any web server with CGI support.
+If you use some tiny web server, you can get to less than 200 kiB on disk (and negligible memory usage) instead of 10 MiB unbound_exporter Go bloat.
+
+The metrics are the same as produced by unbound_exporter, but without the `thread` label (it’s not a problem to implement it, I just find it unnecessary).
+This means that you can use the same Grafana dashboards as with unbound_exporter.
+
+
+== Usage
+
+First you need to enable Unbound remote-control interface.
+If you want a more detailed statistics, also enable extended-statistics.
+
+.*/etc/unbound/unbound.conf:*
+[source]
+----
+server:
+  extended-statistics: yes
+  statistics-cumulative: no
+
+remote-control:
+  control-enable: yes
+  control-interface: /run/unbound.control.sock
+----
+
+Then use a web server that supports CGI 1.1 (e.g. https://acme.com/software/thttpd/[thttpd], OpenWrt’s https://openwrt.org/docs/guide-user/services/webserver/uhttpd[uhttpd], BusyBox httpd, Apache HTTP server) and let it serve link:metrics.cgi[].
+Make sure that the web server (or dedicated user) running this script can access the control socket (_/run/unbound.control.sock_).
+
+
+=== thttpd
+
+https://acme.com/software/thttpd[thttpd] is a tiny (just 120 kiB) and relatively fast HTTP server with CGI 1.1 support.
+It’s not a full-fledged web server, such as nginx or Apache HTTP server, but if you want to just run a simple CGI script accessible only from a _private_ monitoring network, it’s a great choice.
+
+. Install `thttpd` from your distro’s repository (see https://repology.org/project/thttpd/versions[where’s available]) or compile it yourself.
+. Create a dedicated user for thttpd (e.g. `thttpd`), if you don’t have it already.
+. Add `thttpd` user to the `unbound` group so it can access the control socket.
+. Copy link:metrics.cgi[] to e.g. `/var/www/cgi-bin/thttpd`, rename it to `metrics` and make it executable.
+. Run `thttpd -p 9167 -d /var/www/cgi-bin/thttpd -u thttpd -c '*'` (you should use an init script or unit file provided by your distribution though).
+
+
+== License
+
+This project is licensed under http://opensource.org/licenses/MIT/[MIT License].
+For the full text of the license, see the link:LICENSE[LICENSE] file.
