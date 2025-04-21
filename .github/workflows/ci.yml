@@ -1,0 +1,23 @@
+name: CI
+on:
+  - push
+  - pull_request
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        awk:
+          - /bin/busybox awk
+          - /usr/bin/awk
+          - /usr/bin/gawk
+          - /usr/bin/mawk
+          - /usr/bin/nawk
+    runs-on: ubuntu-latest
+    env:
+      AWK: ${{ matrix.awk }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: ./tests/run-tests
