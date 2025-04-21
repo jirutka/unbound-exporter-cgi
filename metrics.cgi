@@ -337,12 +337,12 @@ if [ "$REQUEST_METHOD" ] && [ "$REQUEST_METHOD" != 'GET' ]; then
 	print_headers 405
 	echo 'Only GET method is supported'
 
-elif out="$("$CONTROL_CMD" $CONTROL_OPTS stats_noreset 2>/dev/null)"; then
+elif out="$("$CONTROL_CMD" $CONTROL_OPTS stats_noreset 2>&1)"; then
 	print_headers 200
 	printf '%s\n' "$out" | awk "$AWK_SCRIPT"
 else
 	print_headers 500
-	"$CONTROL_CMD" $CONTROL_OPTS stats_noreset 2>&1 >/dev/null | sed -E 's/^\[\d+\] unbound-control\[\d+:\d+] //'
+	printf '%s\n' "$out" | sed -E 's/^\[\d+\] unbound-control\[\d+:\d+] //'
 fi
 
 exit 0
