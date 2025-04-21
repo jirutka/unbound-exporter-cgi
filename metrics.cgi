@@ -10,8 +10,9 @@
 # https://github.com/letsencrypt/unbound_exporter, except the "thread" label
 # which is not used here.
 
-# Path to the unbound-control program.
-readonly CONTROL_CMD='/usr/sbin/unbound-control'
+# unbound-control is usually installed in /usr/sbin, but some CGI servers
+# (thttpd) exports PATH without /sbin directories.
+export PATH="$PATH:/usr/sbin"
 
 # Options to pass to unbound-control.
 readonly CONTROL_OPTS=''
@@ -341,7 +342,7 @@ if [ "$REQUEST_METHOD" ] && [ "$REQUEST_METHOD" != 'GET' ]; then
 	print_headers 405
 	echo 'Only GET method is supported'
 
-elif out="$("$CONTROL_CMD" $CONTROL_OPTS stats_noreset 2>&1)"; then
+elif out="$(unbound-control $CONTROL_OPTS stats_noreset 2>&1)"; then
 	print_headers 200
 	printf '%s\n' "$out" | awk "$AWK_SCRIPT"
 else
