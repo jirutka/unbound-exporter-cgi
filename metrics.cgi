@@ -22,7 +22,7 @@ BEGIN {
 	FS="=";
 	hist_count = 0
 }
-/^num\.answer\.rcode\.\w+=/ {
+/^num\.answer\.rcode\.[A-Za-z]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_answer_rcodes_total"]) {
 		print "# HELP unbound_answer_rcodes_total Total number of answers to queries, from cache or from recursion, by response code."
@@ -66,7 +66,7 @@ BEGIN {
 	print "# TYPE unbound_queries_cookie_valid_total counter"
 	printf "unbound_queries_cookie_valid_total %s\n", $2
 }
-/^mem\.cache\.\w+=/ {
+/^mem\.cache\.[a-z_]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_memory_caches_bytes"]) {
 		print "# HELP unbound_memory_caches_bytes Memory in bytes in use by caches."
@@ -75,7 +75,7 @@ BEGIN {
 	}
 	printf "unbound_memory_caches_bytes{cache=\"%s\"} %s\n", parts[3], $2
 }
-/^mem\.mod\.\w+=/ {
+/^mem\.mod\.[0-9A-Za-z_]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_memory_modules_bytes"]) {
 		print "# HELP unbound_memory_modules_bytes Memory in bytes in use by modules."
@@ -104,7 +104,7 @@ BEGIN {
 	print "# TYPE unbound_expired_total counter"
 	printf "unbound_expired_total %s\n", $2
 }
-/^num\.query\.class\.\w+=/ {
+/^num\.query\.class\.[A-Z]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_query_classes_total"]) {
 		print "# HELP unbound_query_classes_total Total number of queries with a given query class."
@@ -113,7 +113,7 @@ BEGIN {
 	}
 	printf "unbound_query_classes_total{class=\"%s\"} %s\n", parts[4], $2
 }
-/^num\.query\.flags\.\w+=/ {
+/^num\.query\.flags\.[A-Z]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_query_flags_total"]) {
 		print "# HELP unbound_query_flags_total Total number of queries that had a given flag set in the header."
@@ -127,7 +127,7 @@ BEGIN {
 	print "# TYPE unbound_query_ipv6_total counter"
 	printf "unbound_query_ipv6_total %s\n", $2
 }
-/^num\.query\.opcode\.\w+=/ {
+/^num\.query\.opcode\.[0-9A-Za-z_]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_query_opcodes_total"]) {
 		print "# HELP unbound_query_opcodes_total Total number of queries with a given query opcode."
@@ -171,7 +171,7 @@ BEGIN {
 	print "# TYPE unbound_query_https_total counter"
 	printf "unbound_query_https_total %s\n", $2
 }
-/^num\.query\.type\.\w+=/ {
+/^num\.query\.type\.[A-Za-z]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_query_types_total"]) {
 		print "# HELP unbound_query_types_total Total number of queries with a given query type."
@@ -185,7 +185,7 @@ BEGIN {
 	print "# TYPE unbound_query_udpout_total counter"
 	printf "unbound_query_udpout_total %s\n", $2
 }
-/^num\.query\.aggressive\.\w+=/ {
+/^num\.query\.aggressive\.[A-Za-z]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_query_aggressive_nsec"]) {
 		print "# HELP unbound_query_aggressive_nsec Total number of queries that the Unbound server generated response using Aggressive NSEC."
@@ -280,7 +280,7 @@ BEGIN {
 	print "# TYPE unbound_rrset_cache_count gauge"
 	printf "unbound_rrset_cache_count %s\n", $2
 }
-/^num\.rpz\.action\.rpz-[\w-]+=/ {
+/^num\.rpz\.action\.rpz-[0-9A-Za-z_-]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_rpz_action_count"]) {
 		print "# HELP unbound_rpz_action_count Total number of triggered Response Policy Zone actions, by type."
@@ -289,7 +289,7 @@ BEGIN {
 	}
 	printf "unbound_rpz_action_count{type=\"%s\"} %s\n", substr(parts[4], 5), $2
 }
-/^mem\.http\.\w+=/ {
+/^mem\.http\.[0-9A-Za-z_]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_memory_doh_bytes"]) {
 		print "# HELP unbound_memory_doh_bytes Memory used by DoH buffers, in bytes."
@@ -301,7 +301,7 @@ BEGIN {
 # We have to convert non-cumulative buckets to cumulative histogram that
 # Prometheus expects. Fortunately, Unbound prints the buckets already sorted by
 # the upper bound, so we can just cummulate the values.
-/^histogram\.\d+\.\d+\.to\.\d+\.\d+=/ {
+/^histogram\.[0-9]+\.[0-9]+\.to\.[0-9]+\.[0-9]+=/ {
 	split($1, parts, /[.]/)
 	if (!skip_comment["unbound_response_time_seconds"]) {
 		print "# HELP unbound_response_time_seconds Query response time in seconds."
