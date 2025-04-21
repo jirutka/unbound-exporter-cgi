@@ -327,6 +327,8 @@ END {
 
 print_headers() {
 	local status="$1"
+	# If not running as a CGI script, don't print headers.
+	[ "${GATEWAY_INTERFACE-}" ] || return
 
 	echo "Status: $status"
 	echo 'Content-Type: text/plain'
@@ -343,6 +345,9 @@ elif out="$("$CONTROL_CMD" $CONTROL_OPTS stats_noreset 2>&1)"; then
 else
 	print_headers 500
 	printf '%s\n' "$out" | sed -E 's/^\[\d+\] unbound-control\[\d+:\d+] //'
+
+	# If not running as a CGI script, exit with error code.
+	[ "${GATEWAY_INTERFACE-}" ] || exit 1
 fi
 
 exit 0

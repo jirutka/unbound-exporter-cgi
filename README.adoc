@@ -31,6 +31,8 @@ remote-control:
 Then use a web server that supports CGI 1.1 (e.g. https://acme.com/software/thttpd/[thttpd], OpenWrt’s https://openwrt.org/docs/guide-user/services/webserver/uhttpd[uhttpd], BusyBox httpd, Apache HTTP server) and let it serve link:metrics.cgi[].
 Make sure that the web server (or dedicated user) running this script can access the control socket (_/run/unbound.control.sock_).
 
+It can also be run as a standalone script (it’s a shell script after all).
+
 
 === thttpd
 
