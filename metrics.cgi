@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: 2025 Jakub Jirutka <jakub@jirutka.cz>
 # Website: https://github.com/jirutka/unbound-exporter-cgi/
-# Version: 1.0.0
+# Version: 1.1.0
 #
 # A CGI script to expose Unbound statistics as Prometheus-style metrics.
 #
