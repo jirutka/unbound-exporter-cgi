@@ -1,0 +1,69 @@
+#!/bin/sh
+# vim: set ts=4:
+#
+# This test infra is extracted from https://github.com/jirutka/esh and quickly
+# modified for this project.
+set -eu
+
+hr() {
+	local char=$1
+	local text=${2:+" $2 "}
+	local text_len=$(printf %s "$text" | wc -c)
+	local chars=$(printf '%*s' $(((72 - $text_len) / 2)) | tr ' ' "$char")
+
+	printf '%s%s%s\n' "$chars" "$text" "$chars"
+}
+
+cd "$(dirname "$0")"
+
+export AWK="${AWK:-"$(which awk)"}"
+
+# Put our fake awk and unbound-control on PATH.
+export PATH="$PWD/bin:$PATH"
+
+export TEST_COMMAND="$PWD/../metrics.cgi"
+
+passed=0
+failed=0
+
+for name in $(ls -1 test-* | sed 's/\.[a-z0-9]*$//' | uniq); do
+	test_script="$name.t"
+	[ -e "$test_script" ] || test_script='bin/diff-test'
+
+	printf %-32s "$name" | tr ' ' '.'
+
+	rm -f "$name.err"
+	if TEST_NAME="$name" ./"$test_script" > "$name.err" 2> "$name.err2"; then
+		rm  -f "$name".err*
+		printf ' OK\n'
+		passed=$(( passed + 1 ))
+	else
+		printf ' FAIL\n'
+		failed=$(( failed + 1 ))
+	fi
+done
+
+printf '\n'
+
+for err_file in $(find * -name 'test-*.err'); do
+	name="${err_file%.err}"
+
+	hr '='
+	printf 'FAILED: %s\n' "$name"
+	hr '-' 'stdout'
+	cat "$err_file"
+	printf '\n'
+	hr '-' 'stderr'
+	cat "${err_file}2"
+	printf '\n'
+	hr '='
+	printf '\n'
+done
+
+if [ $failed -gt 0 ]; then
+	printf 'FAILED %d/%d\n' $failed $(( passed + failed ))
+	exit 1
+else
+	printf 'PASSED %d/%d\n' $passed $passed
+	exit 0
+fi
